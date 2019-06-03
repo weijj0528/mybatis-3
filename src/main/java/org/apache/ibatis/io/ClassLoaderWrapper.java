@@ -117,6 +117,7 @@ public class ClassLoaderWrapper {
 
         // now, some class loaders want this leading "/", so we'll add it and try again if we didn't find the resource
         if (null == returnValue) {
+          // 偿试补/再次获取
           returnValue = cl.getResourceAsStream("/" + resource);
         }
 
@@ -149,6 +150,7 @@ public class ClassLoaderWrapper {
         // ...but some class loaders want this leading "/", so we'll add it
         // and try again if we didn't find the resource
         if (null == url) {
+          // 偿试补/再次获取
           url = cl.getResource("/" + resource);
         }
 

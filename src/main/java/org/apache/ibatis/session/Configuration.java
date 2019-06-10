@@ -543,9 +543,12 @@ public class Configuration {
    * @since 3.5.1
    */
   public LanguageDriver getLanguageDriver(Class<? extends LanguageDriver> langClass) {
+    // 获得 langClass 类
     if (langClass == null) {
+      // 如果为空，则使用默认类
       return languageRegistry.getDefaultDriver();
     }
+    // 获得 LanguageDriver 对象
     languageRegistry.register(langClass);
     return languageRegistry.getDriver(langClass);
   }

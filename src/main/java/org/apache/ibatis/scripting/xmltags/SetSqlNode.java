@@ -28,6 +28,7 @@ public class SetSqlNode extends TrimSqlNode {
   private static final List<String> COMMA = Collections.singletonList(",");
 
   public SetSqlNode(Configuration configuration,SqlNode contents) {
+    // 删除前后的"," 添加前辍
     super(configuration, contents, "SET", COMMA, null, COMMA);
   }
 

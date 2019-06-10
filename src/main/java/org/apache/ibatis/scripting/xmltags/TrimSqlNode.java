@@ -25,14 +25,29 @@ import java.util.StringTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 给SQL片段添加前辍或后辍，
  * @author Clinton Begin
  */
 public class TrimSqlNode implements SqlNode {
-
+  /**
+   * 内含的 SqlNode 节点
+   */
   private final SqlNode contents;
+  /**
+   * 前缀
+   */
   private final String prefix;
+  /**
+   * 后缀
+   */
   private final String suffix;
+  /**
+   * 需要被删除的前缀
+   */
   private final List<String> prefixesToOverride;
+  /**
+   * 需要被删除的后缀
+   */
   private final List<String> suffixesToOverride;
   private final Configuration configuration;
 
@@ -51,12 +66,20 @@ public class TrimSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // <1> 创建 FilteredDynamicContext 对象
     FilteredDynamicContext filteredDynamicContext = new FilteredDynamicContext(context);
+    // <2> 执行 contents 的应用
     boolean result = contents.apply(filteredDynamicContext);
+    // <3> 执行 FilteredDynamicContext 的应用
     filteredDynamicContext.applyAll();
     return result;
   }
 
+  /**
+   * 使用 | 分隔字符串成字符串数组，并都转换成大写
+   * @param overrides
+   * @return
+   */
   private static List<String> parseOverrides(String overrides) {
     if (overrides != null) {
       final StringTokenizer parser = new StringTokenizer(overrides, "|", false);
@@ -69,6 +92,9 @@ public class TrimSqlNode implements SqlNode {
     return Collections.emptyList();
   }
 
+  /**
+   * 实现前后辍处理比如 and id = 1 and name = *** 后移除and前辍后添加 where 前辍
+   */
   private class FilteredDynamicContext extends DynamicContext {
     private DynamicContext delegate;
     private boolean prefixApplied;
@@ -83,6 +109,10 @@ public class TrimSqlNode implements SqlNode {
       this.sqlBuffer = new StringBuilder();
     }
 
+    /**
+     * 清除要移除的前辍或后辍后再添加指定的前辍或后辍
+     * Apply all.
+     */
     public void applyAll() {
       sqlBuffer = new StringBuilder(sqlBuffer.toString().trim());
       String trimmedUppercaseSql = sqlBuffer.toString().toUpperCase(Locale.ENGLISH);
@@ -119,6 +149,7 @@ public class TrimSqlNode implements SqlNode {
     }
 
     private void applyPrefix(StringBuilder sql, String trimmedUppercaseSql) {
+      // 清除要移除的前辍后再添加指定的前辍
       if (!prefixApplied) {
         prefixApplied = true;
         if (prefixesToOverride != null) {
@@ -137,6 +168,7 @@ public class TrimSqlNode implements SqlNode {
     }
 
     private void applySuffix(StringBuilder sql, String trimmedUppercaseSql) {
+      // 清除要移除的后辍后再添加指定的后辍
       if (!suffixApplied) {
         suffixApplied = true;
         if (suffixesToOverride != null) {

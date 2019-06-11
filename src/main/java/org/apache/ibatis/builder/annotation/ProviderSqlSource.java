@@ -34,12 +34,33 @@ import org.apache.ibatis.session.Configuration;
 public class ProviderSqlSource implements SqlSource {
 
   private final Configuration configuration;
+  /**
+   * `@ProviderXXX` 注解的对应的类
+   */
   private final Class<?> providerType;
+  /**
+   * `@Lang` 注解对应的语言驱动
+   */
   private final LanguageDriver languageDriver;
+  /**
+   * `@ProviderXXX` 注解的对应的方法
+   */
   private Method providerMethod;
+  /**
+   * `@ProviderXXX` 注解的对应的方法的参数名数组
+   */
   private String[] providerMethodArgumentNames;
+  /**
+   * `@ProviderXXX` 注解的对应的方法的参数类型数组
+   */
   private Class<?>[] providerMethodParameterTypes;
+  /**
+   * 若 {@link #providerMethodParameterTypes} 参数有 ProviderContext 类型的，创建 ProviderContext 对象
+   */
   private ProviderContext providerContext;
+  /**
+   * {@link #providerMethodParameterTypes} 参数中，ProviderContext 类型的参数，在数组中的位置
+   */
   private Integer providerContextIndex;
 
   /**
@@ -90,6 +111,7 @@ public class ProviderSqlSource implements SqlSource {
     }
     this.providerMethodArgumentNames = new ParamNameResolver(configuration, this.providerMethod).getNames();
     this.providerMethodParameterTypes = this.providerMethod.getParameterTypes();
+    // 初始化 providerContext 和 providerContextIndex 属性
     for (int i = 0; i < this.providerMethodParameterTypes.length; i++) {
       Class<?> parameterType = this.providerMethodParameterTypes[i];
       if (parameterType == ProviderContext.class) {

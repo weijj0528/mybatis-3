@@ -39,6 +39,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
+ * Mapper方法
+ * 调用Mapper的代理对象相关方法时最终将调用 execute
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
@@ -47,10 +50,12 @@ import java.util.Optional;
 public class MapperMethod {
   /**
    * SqlCommand 对象
+   * 本方法对应的SQL命令
    */
   private final SqlCommand command;
   /**
    * MethodSignature 对象
+   * 方法的签名标识
    */
   private final MethodSignature method;
 
@@ -313,6 +318,9 @@ public class MapperMethod {
     }
   }
 
+  /**
+   * Mapper方法相关信息封装
+   */
   public static class MethodSignature {
 
     /**
@@ -381,11 +389,20 @@ public class MapperMethod {
       this.returnsOptional = Optional.class.equals(this.returnType);
       this.mapKey = getMapKey(method);
       this.returnsMap = this.mapKey != null;
+      // 分页参数位置
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
+      // 结果处理参数位置
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
 
+    /**
+     * 参数转换，获取SQL通用参数，如果参数只有一个则直接获取，如为多个将封装为一个Map
+     * 详见{@link ParamNameResolver#getNamedParams(Object[])}
+     *
+     * @param args
+     * @return
+     */
     public Object convertArgsToSqlCommandParam(Object[] args) {
       // 获得 SQL 通用参数。
       // eg:
@@ -447,6 +464,13 @@ public class MapperMethod {
       return returnsOptional;
     }
 
+    /**
+     * 获取唯一一种类型参数的位置
+     *
+     * @param method
+     * @param paramType
+     * @return
+     */
     private Integer getUniqueParamIndex(Method method, Class<?> paramType) {
       Integer index = null;
       final Class<?>[] argTypes = method.getParameterTypes();

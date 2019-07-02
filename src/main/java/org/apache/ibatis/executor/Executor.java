@@ -29,7 +29,8 @@ import java.util.List;
 
 /**
  * The interface Executor.
- *
+ * 主要负责维护一级缓存和二级缓存，并提供事务管理的相关操作，它会将数据库相关操作委托给 StatementHandler完成。
+ * {@link org.apache.ibatis.executor.statement.StatementHandler}
  * @author Clinton Begin
  */
 public interface Executor {
